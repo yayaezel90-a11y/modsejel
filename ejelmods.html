@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZELS DEV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: transparent;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        /* LOGIN SCREEN */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #1a0000, #000000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000000;
+        }
+        
+        .login-box {
+            background: rgba(30, 0, 0, 0.95);
+            border: 3px solid #ff0000;
+            border-radius: 30px;
+            padding: 30px;
+            width: 85%;
+            max-width: 350px;
+            box-shadow: 0 0 100px red;
+            text-align: center;
+        }
+        
+        .login-box h1 {
+            color: red;
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px red;
+        }
+        
+        .login-box h2 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            background: #1f1f1f;
+            border: 2px solid #ff5555;
+            border-radius: 50px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, #ff0000, #990000);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 30px red;
+        }
+        
+        #errorMsg {
+            color: #ff5555;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        /* MAIN CONTENT */
+        #mainContent {
+            display: none;
+            height: 100vh;
+            background: transparent;
+        }
+        
+        /* FLOATING LOGO */
+        #floatingCombo {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 999999;
+            filter: drop-shadow(0 0 20px red);
+            cursor: grab;
+        }
+        
+        #comboCloseBtn {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(145deg, #ff3333, #990000);
+            border: 3px solid white;
+            border-right: none;
+            border-radius: 45px 0 0 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        #comboLogo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #ff0000, #cc0000);
+            border: 4px solid white;
+            border-left: 2px solid white;
+            border-radius: 0 45px 45px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 3px 0 30px red; }
+            50% { box-shadow: 3px 0 70px red; transform: scale(1.05); }
+            100% { box-shadow: 3px 0 30px red; }
+        }
+        
+        /* MOD MENU PANEL */
+        #modPanel {
+            position: fixed;
+            top: 190px;
+            left: 20px;
+            width: 300px;
+            background: rgba(20, 0, 0, 0.98);
+            border: 3px solid #ff0000;
+            border-radius: 25px;
+            padding: 20px;
+            z-index: 1000000;
+            box-shadow: 0 0 80px red;
+            color: white;
+            display: none;
+            backdrop-filter: blur(20px);
+        }
+        
+        #panelDragHandle {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: transparent;
+            cursor: move;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ff5555;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .panel-header h2 {
+            color: red;
+            font-size: 24px;
+        }
+        
+        .panel-close-btn {
+            background: #ff0000;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        
+        .menu-category {
+            color: #ffaaaa;
+            font-size: 16px;
+            margin: 15px 0 8px;
+            border-left: 5px solid red;
+            padding-left: 10px;
+        }
+        
+        .menu-item {
+            background: #1f1f1f;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 8px solid #ff0000;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            border: 1px solid #ff5555;
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(90deg, #330000, #1f0000);
+            border-left: 15px solid #ff0000;
+            box-shadow: 0 0 30px red;
+        }
+        
+        .toggle-switch {
+            width: 60px;
+            height: 28px;
+            background: #333;
+            border-radius: 30px;
+            position: relative;
+            border: 2px solid #ff5555;
+        }
+        
+        .toggle-switch.active {
+            background: #ff0000;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+        
+        .toggle-switch.active::after {
+            left: 34px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #1f1f1f;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid red;
+            margin: 15px 0;
+        }
+        
+        input[type=range] {
+            flex: 1;
+            height: 8px;
+            background: #333;
+            border-radius: 10px;
+            -webkit-appearance: none;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            background: red;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 15px red;
+            cursor: pointer;
+        }
+        
+        .value-badge {
+            background: red;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+            border: 2px solid white;
+        }
+        
+        .status-bar {
+            margin-top: 20px;
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #ff5555;
+            font-size: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+            color: #00ff00;
+            font-family: monospace;
+        }
+        
+        .footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 11px;
+            color: #ff5555;
+            border-top: 1px dashed #ff5555;
+            padding-top: 10px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: red;
+            font-size: 20px;
+        }
+        
+        .loader {
+            border: 8px solid #333;
+            border-top: 8px solid red;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+    <div id="loadingText">LOADING...</div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h1>😈 ZELS DEV</h1>
+        <h2>ENTER KEY</h2>
+        <input type="password" id="keyInput" placeholder="Masukkan Key">
+        <button onclick="checkKey()">UNLOCK</button>
+        <div id="errorMsg"></div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+    <div id="floatingCombo">
+        <div id="comboCloseBtn" onclick="toggleScript()">✕</div>
+        <div id="comboLogo" onclick="toggleMenu()">😈</div>
+    </div>
+
+    <div id="modPanel">
+        <div id="panelDragHandle"></div>
+        <div class="panel-header">
+            <h2>😈 ZELS DEV</h2>
+            <button class="panel-close-btn" onclick="hideMenuOnly()">✕</button>
+        </div>
+        
+        <div class="menu-category">🎯 AIMBOT</div>
+        
+        <div class="menu-item" id="aimLockItem" onclick="toggleFeature('aimLock')">
+            <span>💀 AIM LOCK KEPALA</span>
+            <div class="toggle-switch" id="aimLockSwitch"></div>
+        </div>
+        
+        <div class="menu-item" id="bodyHsItem" onclick="toggleFeature('bodyHs')">
+            <span>🔥 BODY + HEADSHOT</span>
+            <div class="toggle-switch" id="bodyHsSwitch"></div>
+        </div>
+        
+        <div class="menu-item" id="aimRedItem" onclick="toggleFeature('aimRed')">
+            <span>🔴 AIM MERAH BODY</span>
+            <div class="toggle-switch" id="aimRedSwitch"></div>
+        </div>
+        
+        <div class="menu-category">⚡ HS ACCURACY</div>
+        
+        <div class="slider-container">
+            <span>🎯</span>
+            <input type="range" id="hsSlider" min="0" max="100" value="70" oninput="updateHS(this.value)">
+            <span class="value-badge" id="hsValue">70%</span>
+        </div>
+        
+        <div class="menu-category">🛡️ ANTI-BAN</div>
+        
+        <div class="menu-item" id="antibanItem" onclick="toggleFeature('antiban')">
+            <span>🔰 BYPASS GARENA</span>
+            <div class="toggle-switch active" id="antibanSwitch"></div>
+        </div>
+        
+        <div class="menu-item" id="hideScannerItem" onclick="toggleFeature('hideScanner')">
+            <span>🕵️ HIDE SCANNER</span>
+            <div class="toggle-switch active" id="hideScannerSwitch"></div>
+        </div>
+        
+        <div class="status-bar" id="statusLog">
+            [SYSTEM] ZELS DEV<br>
+            [KEY] Required<br>
+        </div>
+        
+        <div class="footer">
+            © ZELS DEVELOPER • KEY: 301123
+        </div>
+    </div>
+</div>
+
+<script>
+const VALID_KEY = "301123";
+let features = {
+    aimLock: false,
+    bodyHs: false,
+    aimRed: false,
+    antiban: true,
+    hideScanner: true
+};
+let scriptActive = true;
+let isDragging = false;
+let hsAccuracy = 70;
+
+function speak(text) {
+    try {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            window.speechSynthesis.speak(utterance);
+        }
+    } catch(e) {}
+}
+
+function showLoading(msg, duration) {
+    let loading = document.getElementById('loadingOverlay');
+    document.getElementById('loadingText').innerText = msg;
+    loading.style.display = 'flex';
+    setTimeout(() => {
+        loading.style.display = 'none';
+    }, duration);
+}
+
+function addLog(msg) {
+    let log = document.getElementById('statusLog');
+    let time = new Date().toLocaleTimeString();
+    log.innerHTML = '[' + time + '] ' + msg + '<br>' + log.innerHTML;
+    if (log.children.length > 5) log.removeChild(log.lastChild);
+}
+
+function checkKey() {
+    let key = document.getElementById('keyInput').value;
+    if (key === VALID_KEY) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        showLoading('KEY BENAR', 1500);
+        setTimeout(() => {
+            speak('ezel mods activated');
+            addLog('✅ Access granted');
+        }, 1500);
+    } else {
+        document.getElementById('errorMsg').innerText = '❌ KEY SALAH!';
+        speak('key salah');
+    }
+}
+
+function toggleFeature(feat) {
+    if (!scriptActive) return;
+    
+    features[feat] = !features[feat];
+    let sw = document.getElementById(feat + 'Switch');
+    let it = document.getElementById(feat + 'Item');
+    
+    if (features[feat]) {
+        sw.classList.add('active');
+        if (it) it.classList.add('active');
+    } else {
+        sw.classList.remove('active');
+        if (it) it.classList.remove('active');
+    }
+    
+    if (feat === 'aimLock' && features[feat]) {
+        features.bodyHs = false; features.aimRed = false;
+        document.getElementById('bodyHsSwitch').classList.remove('active');
+        document.getElementById('aimRedSwitch').classList.remove('active');
+        document.getElementById('bodyHsItem').classList.remove('active');
+        document.getElementById('aimRedItem').classList.remove('active');
+    } else if (feat === 'bodyHs' && features[feat]) {
+        features.aimLock = false; features.aimRed = false;
+        document.getElementById('aimLockSwitch').classList.remove('active');
+        document.getElementById('aimRedSwitch').classList.remove('active');
+        document.getElementById('aimLockItem').classList.remove('active');
+        document.getElementById('aimRedItem').classList.remove('active');
+    } else if (feat === 'aimRed' && features[feat]) {
+        features.aimLock = false; features.bodyHs = false;
+        document.getElementById('aimLockSwitch').classList.remove('active');
+        document.getElementById('bodyHsSwitch').classList.remove('active');
+        document.getElementById('aimLockItem').classList.remove('active');
+        document.getElementById('bodyHsItem').classList.remove('active');
+    }
+    
+    let names = {
+        aimLock: 'AIM LOCK', bodyHs: 'BODY HS', aimRed: 'AIM MERAH',
+        antiban: 'BYPASS', hideScanner: 'HIDE'
+    };
+    addLog((features[feat] ? '✅' : '❌') + ' ' + names[feat]);
+    
+    if (features[feat]) speak('ezel mods activated');
+    else speak('ezel mods deactivated');
+}
+
+function updateHS(val) {
+    hsAccuracy = val;
+    document.getElementById('hsValue').innerText = val + '%';
+    addLog('⚡ HS: ' + val + '%');
+}
+
+function toggleMenu() {
+    let panel = document.getElementById('modPanel');
+    let logo = document.getElementById('floatingCombo').getBoundingClientRect();
+    panel.style.top = (logo.bottom + 10) + 'px';
+    panel.style.left = logo.left + 'px';
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+function hideMenuOnly() {
+    document.getElementById('modPanel').style.display = 'none';
+}
+
+function toggleScript() {
+    scriptActive = !scriptActive;
+    document.getElementById('modPanel').style.display = 'none';
+    if (scriptActive) {
+        showLoading('SCRIPT ON', 1000);
+        speak('ezel mods activated');
+        addLog('✅ Script ON');
+    } else {
+        showLoading('SCRIPT OFF', 1000);
+        speak('ezel mods deactivated');
+        addLog('❌ Script OFF');
+    }
+}
+
+// Draggable
+let combo = document.getElementById('floatingCombo');
+let startX, startY, startLeft, startTop;
+
+combo.addEventListener('touchstart', (e) => {
+    let touch = e.touches[0];
+    let rect = combo.getBoundingClientRect();
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    isDragging = true;
+});
+
+combo.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    let touch = e.touches[0];
+    combo.style.left = (startLeft + (touch.clientX - startX)) + 'px';
+    combo.style.top = (startTop + (touch.clientY - startY)) + 'px';
+    combo.style.right = 'auto';
+    combo.style.bottom = 'auto';
+});
+
+combo.addEventListener('touchend', () => isDragging = false);
+
+window.onload = function() {
+    addLog('🔐 Masukkan key: 301123');
+    document.getElementById('antibanSwitch').classList.add('active');
+    document.getElementById('hideScannerSwitch').classList.add('active');
+    document.getElementById('antibanItem').classList.add('active');
+    document.getElementById('hideScannerItem').classList.add('active');
+};
+</script>
+</body>
+</html>
